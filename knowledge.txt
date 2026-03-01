@@ -1,0 +1,34 @@
+SaraCell Platform Information
+
+About SaraCell:
+SaraCell is a college student re-commerce platform.
+It allows verified college students to buy and sell used items within their campus.
+
+Who Can Use:
+Only registered college students using official college email IDs.
+
+How to Buy:
+1. Login using college email.
+2. Search for a product.
+3. View details and contact seller.
+4. Meet safely within campus.
+5. Complete transaction.
+
+How to Sell:
+1. Login to SaraCell.
+2. Click "Sell Item".
+3. Upload product image.
+4. Enter price and description.
+5. Post listing.
+6. Wait for buyer response.
+
+Safety Rules:
+- No illegal items.
+- No fake listings.
+- Meet in public campus locations.
+- Report suspicious users.
+
+Policies:
+- SaraCell does not process payments.
+- It only connects buyers and sellers.
+- Violating rules may result in account suspension.

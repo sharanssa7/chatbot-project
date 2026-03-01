@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SaraCell</title>
+<style>
+body { background:black; font-family:Arial; color:white; }
+html, body {
+ margin: 0;
+ padding: 0;
+ overflow-x: hidden;
+}
+/* Floating Icon */
+#chat-icon{
+ position:fixed;
+ bottom:30px;   /* increased */
+ right:30px;    /* increased */
+ width:70px;
+ height:70px;
+ border-radius:50%;
+ cursor:pointer;
+ box-shadow:0 5px 20px rgba(0,0,0,0.5);
+ transition:transform 0.3s ease;
+ overflow:hidden;
+ z-index:9999;   /* very important */
+}
+
+#chat-icon img{
+ width: 100%;
+ height: 100%;
+ object-fit: contain;
+}
+
+#chat-icon:hover{
+ transform: scale(1.1);
+}
+
+/* Notification Badge */
+#badge{
+ position:absolute;
+ top:-5px;
+ right:-5px;
+ background:red;
+ color:white;
+ font-size:12px;
+ padding:4px 7px;
+ border-radius:50%;
+}
+
+/* Chat Container */
+#chat-container{
+ position:fixed;
+ bottom:100px;
+ right:20px;
+ width:360px;
+ height:500px;
+ background:#111;
+ border-radius:15px;
+ display:flex;
+ flex-direction:column;
+ transform:scale(0);
+ transform-origin:bottom right;
+ transition:transform 0.3s ease;
+ box-shadow:0 5px 20px rgba(0,0,0,0.7);
+}
+
+#chat-container.active{
+ transform:scale(1);
+}
+
+#chat-header{
+ background:#0072ff;
+ padding:12px;
+ text-align:center;
+ border-top-left-radius:15px;
+ border-top-right-radius:15px;
+ font-weight:bold;
+}
+
+#messages{
+ flex:1;
+ padding:10px;
+ overflow-y:auto;
+ font-size:14px;
+}
+
+.message{
+ margin-bottom:10px;
+}
+
+.user{ color:#00e676; }
+.bot{ color:white; }
+
+/* Typing Animation */
+.typing{
+ display:inline-block;
+}
+.typing span{
+ height:8px;
+ width:8px;
+ background:white;
+ border-radius:50%;
+ display:inline-block;
+ margin:0 2px;
+ animation:blink 1.4s infinite both;
+}
+.typing span:nth-child(2){ animation-delay:0.2s; }
+.typing span:nth-child(3){ animation-delay:0.4s; }
+
+@keyframes blink{
+ 0%{opacity:0.2;}
+ 20%{opacity:1;}
+ 100%{opacity:0.2;}
+}
+
+#input-area{
+ display:flex;
+ padding:10px;
+}
+
+#userInput{
+ flex:1;
+ padding:8px;
+ border-radius:10px;
+ border:none;
+}
+
+button{
+ margin-left:5px;
+ padding:8px 12px;
+ border-radius:10px;
+ border:none;
+ background:#00c853;
+ color:white;
+ cursor:pointer;
+}
+</style>
+</head>
+<body>
+
+<h1>Welcome to SaraCell</h1>
+
+<div id="chat-icon" onclick="toggleChat()">
+  <img src="chatbot.png" alt="Chatbot">
+
+</div>
+
+<div id="chat-container">
+ <div id="chat-header">SaraCell Assistant</div>
+ <div id="messages"></div>
+ <div id="input-area">
+   <input type="text" id="userInput" placeholder="Ask about SaraCell..." />
+   <button onclick="sendMessage()">Send</button>
+ </div>
+</div>
+
+<script>
+function toggleChat(){
+ let chat=document.getElementById("chat-container");
+ chat.classList.toggle("active");
+}
+
+async function sendMessage(){
+ let input=document.getElementById("userInput");
+ let message=input.value;
+ if(!message) return;
+
+ let messages=document.getElementById("messages");
+
+ messages.innerHTML+=`<div class="message user"><b>You:</b> ${message}</div>`;
+
+ input.value="";
+
+ // Typing animation
+ let typingDiv=document.createElement("div");
+ typingDiv.className="message bot typing";
+ typingDiv.innerHTML='<span></span><span></span><span></span>';
+ messages.appendChild(typingDiv);
+ messages.scrollTop=messages.scrollHeight;
+
+ const response=await fetch("http://127.0.0.1:5000/chat",{
+  method:"POST",
+  headers:{"Content-Type":"application/json"},
+  body:JSON.stringify({message:message})
+ });
+
+ const reader=response.body.getReader();
+ const decoder=new TextDecoder("utf-8");
+
+ typingDiv.remove();
+
+ let botMessageDiv=document.createElement("div");
+ botMessageDiv.className="message bot";
+ botMessageDiv.innerHTML="<b>Bot:</b> ";
+ messages.appendChild(botMessageDiv);
+
+ while(true){
+  const {done,value}=await reader.read();
+  if(done) break;
+  const chunk=decoder.decode(value);
+  botMessageDiv.innerHTML+=chunk;
+  messages.scrollTop=messages.scrollHeight;
+ }
+}
+</script>
+
+</body>
+</html>
